@@ -68,3 +68,29 @@ func (h *NoteHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
+func (h *NoteHandler) Update(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid id")
+		return
+	}
+	var input models.CreateNoteInput
+	/*if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		writeError(w, http.StatusBadRequest, "bad JSON")
+		return
+	}*/
+	if _, err := writeJSONDecoder(w, r, &input); err != nil {
+		return
+	}
+	note, err := h.svc.Update(id, input)
+	if errors.Is(err, service.ErrNotFound) {
+		writeError(w, http.StatusNotFound, "note not found")
+		return
+	}
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "update failed")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, note)
+}

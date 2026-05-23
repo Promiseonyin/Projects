@@ -58,3 +58,15 @@ func (s *MemoryStore) Delete(id int) error {
 	delete(s.notes, id)
 	return nil
 }
+func (s *MemoryStore) Update(id int, input models.CreateNoteInput) (models.Note, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if _, ok := s.notes[id]; !ok {
+		return models.Note{}, fmt.Errorf("note %d not found", id)
+	}
+	note := s.notes[id]
+	note.Title = input.Title
+	note.Body = input.Body
+	s.notes[id] = note
+	return note, nil
+}

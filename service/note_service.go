@@ -42,3 +42,16 @@ func (s *NoteService) Delete(id int) error {
 	}
 	return nil
 }
+func (s *NoteService) Update(id int, input models.CreateNoteInput) (models.Note, error) {
+	if err := input.Validate(); err != nil {
+		return models.Note{}, err
+	}
+	note, err := s.store.Update(id, input)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return models.Note{}, ErrNotFound
+		}
+		return models.Note{}, err
+	}
+	return note, nil
+}
