@@ -55,3 +55,15 @@ func (s *NoteService) Update(id int, input models.CreateNoteInput) (models.Note,
 	}
 	return note, nil
 }
+func (s *NoteService) CreateBulk(inputs []models.CreateNoteInput) ([]models.Note, error) {
+	for _, input := range inputs {
+		if err := input.Validate(); err != nil {
+			return nil, err
+		}
+	}
+	notes, err := s.store.CreateBulk(inputs)
+	if err != nil {
+		return nil, err
+	}
+	return notes, nil
+}

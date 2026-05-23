@@ -94,3 +94,16 @@ func (h *NoteHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, note)
 }
+func (h *NoteHandler) CreateBulk(w http.ResponseWriter, r *http.Request) {
+	var input []models.CreateNoteInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		writeError(w, http.StatusBadRequest, "bad JSON")
+		return
+	}
+	notes, err := h.svc.CreateBulk(input)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusCreated, notes)
+}

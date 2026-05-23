@@ -12,4 +12,5 @@ func Mount(r chi.Router, notes *handlers.NoteHandler) {
 	r.Get("/notes/{id}", notes.Get)
 	r.Delete("/notes/{id}", notes.Delete)
 	r.Put("/notes/{id}", notes.Update)
+	r.Post("/notes/bulk", notes.CreateBulk)
 }
