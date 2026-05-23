@@ -58,3 +58,28 @@ func (s *MemoryStore) Delete(id int) error {
 	delete(s.notes, id)
 	return nil
 }
+func (s *MemoryStore) Update(id int, input models.CreateNoteInput) (models.Note, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if _, ok := s.notes[id]; !ok {
+		return models.Note{}, fmt.Errorf("note %d not found", id)
+	}
+	note := s.notes[id]
+	note.Title = input.Title
+	note.Body = input.Body
+	s.notes[id] = note
+	return note, nil
+}
+func (s *MemoryStore) CreateBulk(inputs []models.CreateNoteInput) ([]models.Note, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	notes := []models.Note{}
+	for _, note := range inputs {
+		newNote := models.Note{ID: s.nextID, Title: note.Title, Body: note.Body, CreatedAt: time.Now()}
+		s.notes[s.nextID] = newNote
+		notes = append(notes, newNote)
+		s.nextID++
+	}
+	return notes, nil
+}
